@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,11 +25,13 @@ public class InventoryServiceApplication {
         SpringApplication.run(InventoryServiceApplication.class, args);
     }
     @Bean
-    CommandLineRunner start(ProductRepository productRepository){
+    CommandLineRunner start(ProductRepository productRepository,
+                            RepositoryRestConfiguration restConfiguration){
+        restConfiguration.exposeIdsFor(Product.class);
         return args -> {
-            productRepository.save(new Product(null,"Ordinateur",7885,5));
-            productRepository.save(new Product(null,"imprimante",1500,14));
-            productRepository.save(new Product(null,"Smartphone",3200,50));
+            productRepository.save(new Product(null,"Ordinateur",7885,true,5));
+            productRepository.save(new Product(null,"imprimante",1500,false,14));
+            productRepository.save(new Product(null,"Smartphone",3200,true,50));
             productRepository.findAll().forEach(p->{
                 System.out.println(p.getName());
             });
@@ -43,10 +47,12 @@ class Product{
     private Long id;
     private String name;
     private double price;
+    private boolean promotion;
     private double quantity;
 }
 
 @RepositoryRestResource
+@CrossOrigin("*")
 interface ProductRepository extends JpaRepository<Product,Long>{
 
 }
